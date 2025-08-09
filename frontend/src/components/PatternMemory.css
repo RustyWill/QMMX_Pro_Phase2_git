@@ -1,0 +1,38 @@
+.pattern-memory-container {
+  padding: 2rem;
+  text-align: center;
+  color: #ffffff;
+}
+
+.pattern-memory-title {
+  font-size: 2rem;
+  color: #ff66cc;
+  margin-bottom: 0.5rem;
+}
+
+.pattern-memory-description {
+  font-size: 1rem;
+  color: #ccc;
+  margin-bottom: 2rem;
+}
+
+.pattern-list {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.pattern-card {
+  background-color: #292929;
+  border: 1px solid #ff66cc88;
+  border-radius: 8px;
+  padding: 1rem;
+  width: 200px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.pattern-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 10px #ff66ccaa;
+}

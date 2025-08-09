@@ -1,0 +1,41 @@
+/* src/components/QBrandHeader.css */
+
+.qmmx-header {
+  position: relative;
+  height: 200px;            /* adjust as needed */
+  overflow: hidden;
+}
+
+/* full-size background image */
+/* QBrandHeader.css */
+.qmmx-header-bg {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-size: cover;
+  background-position: center;
+  filter: brightness(1);
+}
+
+/* content sits above the image */
+.qmmx-header-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 2rem;
+}
+
+/* your logo icon */
+.qmmx-header-icon {
+  height: 64px;
+  margin-right: 1rem;
+}
+
+/* main title */
+.qmmx-header-title {
+  font-family: 'Cinzel', serif;     /* or another elegant serif */
+  font-size: 3rem;                   /* or xl/2xl in Tailwind */
+  color: #e0ffff;                    /* pale cyan */
+  text-shadow: 0 0 8px rgba(0,255,255,0.7);
+}

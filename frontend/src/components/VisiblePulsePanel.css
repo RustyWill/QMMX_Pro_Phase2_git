@@ -1,0 +1,29 @@
+.visible-pulse-panel {
+  padding: 16px;
+}
+
+.pulse-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.pulse-card {
+  border: 2px solid #ccc;
+  border-radius: 12px;
+  padding: 12px;
+  min-width: 150px;
+  text-align: center;
+}
+
+.pulse-label {
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.pulse-status {
+  width: 20px;
+  height: 20px;
+  margin: 0 auto;
+  border-radius: 50%;
+}

@@ -1,0 +1,53 @@
+.confidence-monitor-container {
+  padding: 2rem;
+  text-align: center;
+  color: #ffffff;
+}
+
+.confidence-monitor-title {
+  font-size: 2rem;
+  color: #00ffcc;
+  margin-bottom: 0.5rem;
+}
+
+.confidence-monitor-description {
+  font-size: 1rem;
+  color: #ccc;
+  margin-bottom: 2rem;
+}
+
+.confidence-grid {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.confidence-box {
+  background-color: #1d1d1d;
+  border: 1px solid #00ffcc88;
+  border-radius: 8px;
+  padding: 1rem;
+  width: 220px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.confidence-box:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 10px #00ffcc88;
+}
+
+.high {
+  color: #00ff00;
+  font-weight: bold;
+}
+
+.medium {
+  color: #ffaa00;
+  font-weight: bold;
+}
+
+.low {
+  color: #ff4444;
+  font-weight: bold;
+}

@@ -1,0 +1,38 @@
+.trade-recommendations-container {
+  padding: 2rem;
+  text-align: center;
+  color: #ffffff;
+}
+
+.trade-title {
+  font-size: 2rem;
+  color: #33ccff;
+  margin-bottom: 0.5rem;
+}
+
+.trade-description {
+  font-size: 1rem;
+  color: #bbb;
+  margin-bottom: 2rem;
+}
+
+.trade-cards {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.trade-card {
+  background-color: #1a1a1a;
+  border: 1px solid #33ccff88;
+  border-radius: 10px;
+  padding: 1rem;
+  width: 220px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.trade-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 10px #33ccff88;
+}

@@ -1,0 +1,42 @@
+.recommendation-panel {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 30px;
+  border-radius: 10px;
+  color: white;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.recommendation-panel h3 {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.last-updated {
+  font-size: 0.9rem;
+  opacity: 0.7;
+  margin-bottom: 15px;
+}
+
+.recommendation-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.recommendation-table th,
+.recommendation-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+
+.recommendation-table th {
+  background: rgba(255, 255, 255, 0.05);
+  font-weight: 600;
+}
+
+.no-recommendations {
+  font-style: italic;
+  opacity: 0.6;
+}

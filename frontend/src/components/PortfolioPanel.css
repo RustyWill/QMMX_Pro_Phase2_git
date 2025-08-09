@@ -1,0 +1,66 @@
+.portfolio-panel {
+  padding: 16px;
+  background-color: #111;
+  color: #fff;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  border-radius: 10px;
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.2);
+}
+
+.portfolio-panel h2 {
+  margin-top: 0;
+  font-size: 1.5rem;
+  border-bottom: 2px solid #00ffff;
+  padding-bottom: 6px;
+}
+
+.portfolio-balance {
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  color: #00ffcc;
+}
+
+.portfolio-section {
+  margin-top: 20px;
+}
+
+.portfolio-section h3 {
+  font-size: 1.2rem;
+  color: #00ffff;
+  margin-bottom: 8px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+th,
+td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #333;
+}
+
+th {
+  background-color: #222;
+  font-weight: bold;
+  color: #00ffff;
+}
+
+td {
+  color: #eee;
+}
+
+.profit {
+  color: #00ff66;
+  font-weight: bold;
+}
+
+.loss {
+  color: #ff4444;
+  font-weight: bold;
+}

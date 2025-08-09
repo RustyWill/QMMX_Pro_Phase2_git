@@ -1,0 +1,50 @@
+.diagnostic-panel {
+  padding: 15px;
+  background: #111;
+  color: #fff;
+  font-family: Consolas, monospace;
+  margin-top: 20px;
+  border-radius: 8px;
+  border: 1px solid #333;
+}
+
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.module-box {
+  padding: 12px;
+  background: #1c1c1c;
+  border-radius: 6px;
+  border-left: 6px solid transparent;
+  transition: 0.2s ease;
+}
+
+.module-box.green {
+  border-color: #27ae60;
+}
+
+.module-box.red {
+  border-color: #c0392b;
+}
+
+.module-status {
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.module-details {
+  font-size: 12px;
+  margin-top: 4px;
+  color: #bbb;
+}
+
+.error-msg {
+  color: #f88;
+  margin-top: 5px;
+  font-weight: bold;
+}
+

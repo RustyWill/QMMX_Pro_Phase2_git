@@ -1,0 +1,22 @@
+QMMX_Pro_Phase1/
+├── backend/
+│   ├── app.py
+│   ├── polygon_io_provider.py
+│   ├── ml_engine.py
+│   ├── qmms_feature_engineer.py
+│   ├── qmms_pattern_discovery.py
+│   ├── qmms_pattern_recognizer.py
+│   ├── qmms_strategies.py
+│   └── tree.text
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── App.js
+│   │   ├── App.css
+│   │   ├── index.js
+│   │   ├── TextLevelEntry.js
+│   │   ├── PatternReview.js
+│   │   └── ...
+│   └── package.json
+├── electron/
+│   └── main.js

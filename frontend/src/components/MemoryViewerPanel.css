@@ -1,0 +1,59 @@
+.memory-viewer-panel {
+  padding: 1rem;
+  background-color: #0a0a0a;
+  color: #e6e6e6;
+  border-radius: 16px;
+  box-shadow: 0 0 15px rgba(0,255,255,0.2);
+  margin: 2rem auto;
+  max-width: 1200px;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.memory-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.memory-controls select {
+  padding: 0.4rem 0.6rem;
+  font-size: 1rem;
+  background: #111;
+  color: #0ff;
+  border: 1px solid #0ff;
+  border-radius: 6px;
+}
+
+.memory-table {
+  max-height: 600px;
+  overflow: auto;
+}
+
+.memory-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.memory-table th, .memory-table td {
+  border: 1px solid #333;
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.memory-table th {
+  background: #111;
+  color: #0ff;
+}
+
+.no-data {
+  text-align: center;
+  padding: 2rem;
+  color: #999;
+}
+
+.loading {
+  color: #aaa;
+  font-style: italic;
+}

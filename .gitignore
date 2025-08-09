@@ -1,0 +1,18 @@
+# Build + Electron output
+frontend/dist/
+*.exe
+*.asar
+
+# App data
+*.db
+*.db-shm
+*.db-wal
+*.json
+settings_store.py
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Node modules
+node_modules/
