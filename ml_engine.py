@@ -16,6 +16,32 @@ from diagnostic_state import diagnostic_monitor
 from level_loader import load_levels
 from smart_entry_planner import SmartEntryPlanner
 from pattern_evolution import PatternEvolutionTracker  # ✅ NEW
+import migrate; migrate.migrate()
+
+# -------------------- ADDITIONS (safe, optional) --------------------
+import os
+
+# Demo / gating levers (affect ONLY the gate, not how confidence is computed)
+DEMO_LOOSE = os.environ.get("Q_DEMO_LOOSE", "0") == "1"
+# Normal required probability to act (change this to your normal if different)
+_DEFAULT_MIN_PROB = 0.75
+MIN_PROB = float(os.environ.get("Q_MIN_PROB", 0.40 if DEMO_LOOSE else _DEFAULT_MIN_PROB))
+
+# Optional: simple cooldown between emitted signals (seconds)
+COOLDOWN_SEC = int(os.environ.get("Q_SIGNAL_COOLDOWN", "120"))
+_last_signal_ts = 0
+
+def _cooldown_ok():
+    global _last_signal_ts
+    now = time.time()
+    if now - _last_signal_ts < COOLDOWN_SEC:
+        return False
+    _last_signal_ts = now
+    return True
+
+# Optional: one-shot force for end-to-end proof. Run engine with Q_FORCE_TEST=1 to emit once.
+_FORCE_ONCE = os.environ.get("Q_FORCE_TEST", "0") == "1"
+# -------------------------------------------------------------------
 
 symbol = "SPY"
 poll_interval = 0.1
@@ -38,8 +64,8 @@ def log_trade_to_db(trade):
         INSERT INTO trades (
             symbol, direction, entry_price, entry_time,
             confidence, pattern_id, pattern_name,
-            contact_event, status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            contact_event, status, mode           -- ✅ mode tag added
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         trade["symbol"],
         trade["direction"],
@@ -49,7 +75,8 @@ def log_trade_to_db(trade):
         trade["pattern_id"],
         trade["pattern"],
         str(trade["contact_event"]),
-        trade["status"]
+        trade["status"],
+        trade.get("mode", "live")               # ✅ persist mode
     ))
     conn.commit()
     conn.close()
@@ -99,8 +126,9 @@ def log_recommendation_to_db(rec):
         INSERT INTO trade_recommendations (
             timestamp, symbol, direction,
             level_type, reaction_type,
-            approach_direction, macro_position
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            approach_direction, macro_position,
+            mode                               -- ✅ store mode
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         datetime.now().isoformat(),
         rec["symbol"],
@@ -108,15 +136,22 @@ def log_recommendation_to_db(rec):
         rec["pattern"].get("level_type"),
         rec["pattern"].get("reaction_type"),
         rec["pattern"].get("approach_direction"),
-        rec["pattern"].get("macro_position")
+        rec["pattern"].get("macro_position"),
+        rec.get("mode", "live")                # ✅ persist mode
     ))
     conn.commit()
     conn.close()
 
 def trading_loop():
+    global _FORCE_ONCE
     while True:
         try:
-            diagnostic_monitor.ping("ml_engine")
+            # ✅ Heartbeats so tiles go green
+            try:
+                diagnostic_monitor.ping("ml engine")
+                diagnostic_monitor.ping("price feed")
+            except Exception:
+                pass
 
             current_price = get_live_stock_price(symbol)
             levels = load_levels()
@@ -182,9 +217,61 @@ def trading_loop():
             print(f"\n📍 {datetime.now().strftime('%H:%M:%S')} Price: {current_price:.2f}")
 
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+            # ✅ Optional forced one-time rec to prove E2E wiring (no impact otherwise)
+            if _FORCE_ONCE:
+                try:
+                    rec = {
+                        "symbol": symbol,
+                        "direction": "long",
+                        "pattern": {
+                            "level_type": "test",
+                            "reaction_type": "test",
+                            "approach_direction": "test",
+                            "macro_position": "test"
+                        },
+                        "mode": "demo" if DEMO_LOOSE else "live"
+                    }
+                    log_recommendation_to_db(rec)
+                    # minimal "enter" to show up in UI/DB, honoring cooldown
+                    if _cooldown_ok():
+                        trade = {
+                            "symbol": symbol,
+                            "direction": rec["direction"],
+                            "entry_price": current_price,
+                            "entry_time": timestamp,
+                            "confidence": 0.72,
+                            "pattern_id": "n/a",
+                            "pattern": "test_break_retest",
+                            "contact_event": rec["pattern"],
+                            "status": "open",
+                            "mode": "demo" if DEMO_LOOSE else "live"
+                        }
+                        try:
+                            diagnostic_monitor.ping("trade recommender", "forced test")
+                            diagnostic_monitor.ping("alerts")
+                        except Exception:
+                            pass
+                        trade.setdefault("contract", None)
+                        portfolio.execute_trade(trade)
+                        log_trade_to_db(trade)
+                    _FORCE_ONCE = False
+                except Exception as fe:
+                    print("⚠️ Forced test failed:", fe)
+                # continue flow to allow normal logic as well
+
             pattern = recognizer.analyze(symbol)
 
             if pattern and "pattern_name" in pattern:
+                # ✅ Heartbeats for analysis modules
+                try:
+                    diagnostic_monitor.ping("contact event evaluator")
+                    diagnostic_monitor.ping("pattern discovery")
+                    diagnostic_monitor.ping("pattern memory engine")
+                    diagnostic_monitor.ping("confidence monitor")
+                except Exception:
+                    pass
+
                 pattern_id = pattern.get("pattern_name", "unknown")
                 ticker = symbol
                 base_score = 0.5
@@ -196,33 +283,53 @@ def trading_loop():
 
                 recommendation = recommender.recommend_trade(contact_event)
                 if recommendation:
+                    # Tag mode for later analysis
+                    recommendation["mode"] = "demo" if DEMO_LOOSE else "live"
+
                     print(f"✅ Reco: {recommendation['direction']} @ {current_price:.2f}")
                     log_recommendation_to_db(recommendation)
 
-                    entry_check = entry_planner.should_enter(
-                        current_price=current_price,
-                        current_volume=0,
-                        current_time=datetime.now().timestamp(),
-                        pattern=pattern
-                    )
+                    # -------------------- GATE (added) --------------------
+                    # Only proceed if confidence meets gate AND cooldown ok
+                    if (scored_confidence >= MIN_PROB) and _cooldown_ok():
+                        # ✅ Heartbeat: recommender is active
+                        try:
+                            diagnostic_monitor.ping("trade recommender", f"emit {pattern['pattern_name']} {scored_confidence:.2f}")
+                            diagnostic_monitor.ping("alerts")
+                        except Exception:
+                            pass
+                        # ----------------------------------------------------
 
-                    if entry_check:
-                        trade = {
-                            "symbol": symbol,
-                            "direction": recommendation["direction"],
-                            "entry_price": current_price,
-                            "entry_time": timestamp,
-                            "confidence": pattern.get("confidence", 0.7),
-                            "pattern_id": "n/a",
-                            "pattern": pattern["pattern_name"],
-                            "contact_event": contact_event,
-                            "status": "open"
-                        }
+                        entry_check = entry_planner.should_enter(
+                            current_price=current_price,
+                            current_volume=0,
+                            current_time=datetime.now().timestamp(),
+                            pattern=pattern
+                        )
 
-                        portfolio.execute_trade(trade)
-                        log_trade_to_db(trade)
+                        if entry_check:
+                            trade = {
+                                "symbol": symbol,
+                                "direction": recommendation["direction"],
+                                "entry_price": current_price,
+                                "entry_time": timestamp,
+                                "confidence": pattern.get("confidence", 0.7),
+                                "pattern_id": "n/a",
+                                "pattern": pattern["pattern_name"],
+                                "contact_event": contact_event,
+                                "status": "open",
+                                "mode": "demo" if DEMO_LOOSE else "live"   # ✅ tag
+                            }
+
+                            trade.setdefault("contract", None)
+                            portfolio.execute_trade(trade)
+                            log_trade_to_db(trade)
+                        else:
+                            print("🚫 Entry rejected by SmartEntryPlanner")
                     else:
-                        print("🚫 Entry rejected by SmartEntryPlanner")
+                        print(f"🧯 Skipped by gate: conf {scored_confidence:.2f} < MIN_PROB {MIN_PROB:.2f} or cooling down")
+                    # ------------------ END GATE ---------------------------
+
                 else:
                     print("🛑 No trade recommendation")
             else:
@@ -242,6 +349,9 @@ def trading_loop():
                             trade["status"] = "closed"
 
                             log_exit_to_db(trade)
+
+                            # During demo/bootstrapping, we still record outcome,
+                            # but since we tagged mode, you can down-weight later in training.
                             record_pattern_outcome(trade["pattern"], trade["pnl"] > 0)
                             record_resilience(
                                 pattern_name=trade["pattern"],

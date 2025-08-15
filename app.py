@@ -3,7 +3,9 @@ from flask_cors import CORS
 import sqlite3
 import time
 import os
+import requests
 
+import migrate; migrate.migrate()
 from backend.pattern_resilience import record_resilience
 from exit_strategy import ExitStrategy
 from trade_recommender import TradeRecommender
@@ -19,6 +21,9 @@ from candlestick_chart_provider import get_candlestick_chart_payload
 
 app = Flask(__name__)
 CORS(app)
+
+from routes_patch import bp as patch_bp
+app.register_blueprint(patch_bp)
 
 exit_strategy = ExitStrategy()
 disc_engine = PatternDiscoveryEngine()
